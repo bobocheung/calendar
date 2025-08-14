@@ -222,5 +222,4 @@ MIT License
 
 ---
 
-**享受手绘风格的任务管理体验！** ✨# hand-drawn-calendar-inspired-by-calendar
-# hand-drawn-calendar-inspired-by-calendar
+**享受手绘风格的任务管理体验！** ✨

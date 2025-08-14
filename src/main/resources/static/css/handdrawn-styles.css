@@ -1,0 +1,451 @@
+/**
+ * 手繪風格基礎樣式表
+ * 
+ * 設計理念：
+ * - 模仿真實手繪和紙張質感
+ * - 營造溫暖、親切、人性化的用戶體驗
+ * - 打破數位界面的冰冷感，增加情感連接
+ * - 通過不完美的線條和形狀展現手工感
+ * 
+ * 視覺特色：
+ * - 不規則邊框和輕微旋轉效果
+ * - 柔和的色彩搭配和紙張紋理
+ * - 手寫風格字體和有機形狀
+ * - 模擬真實繪畫工具的視覺效果
+ * 
+ * @author Augment Agent
+ * @version 1.0.0
+ */
+
+/* CSS自定義屬性（變數）定義 */
+:root {
+    /* 手繪風格色彩調色板 - 模仿真實顏料的柔和色調 */
+    --paper-white: #FEFEFE;        /* 紙張白色 - 略帶暖調的白色 */
+    --paper-cream: #FFF8DC;        /* 紙張米色 - 模仿老舊紙張的顏色 */
+    --ink-black: #2C2C2C;          /* 墨水黑色 - 柔和的深灰色而非純黑 */
+    --ink-blue: #4A5568;           /* 墨水藍色 - 深藍灰色調 */
+    --sketch-gray: #718096;        /* 素描灰色 - 中性灰色調 */
+    --highlight-yellow: #FFF59D;   /* 螢光筆黃色 - 用於高亮顯示 */
+    --accent-pink: #FFB6C1;        /* 強調粉色 - 溫暖的粉紅色調 */
+    --accent-green: #98FB98;       /* 強調綠色 - 清新的淺綠色 */
+    --accent-blue: #87CEEB;        /* 強調藍色 - 天空藍色調 */
+    --accent-purple: #DDA0DD;      /* 強調紫色 - 淡雅的紫色調 */
+    --accent-orange: #FFE4B5;      /* 強調橙色 - 溫暖的桃色調 */
+    
+    /* 手繪風格陰影效果 - 模仿紙張和物體的自然陰影 */
+    --sketch-shadow: 2px 3px 8px rgba(0, 0, 0, 0.15);  /* 素描陰影 */
+    --paper-shadow: 1px 2px 4px rgba(0, 0, 0, 0.1);    /* 紙張陰影 */
+    
+    /* 字體設定 - 手寫風格字體族 */
+    --handwritten-font: 'Kalam', 'Caveat', cursive;    /* 手寫字體 */
+    --body-font: 'Kalam', sans-serif;                  /* 內文字體 */
+}
+
+/* 重置和基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--body-font);
+    background-color: var(--paper-cream);
+    color: var(--ink-black);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* 纸张背景纹理 */
+.paper-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: 
+        /* 纸张纹理 */
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 95, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(120, 119, 95, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(120, 119, 95, 0.03) 0%, transparent 50%),
+        /* 细微的污渍效果 */
+        radial-gradient(ellipse at 60% 30%, rgba(139, 134, 130, 0.02) 0%, transparent 70%);
+    background-size: 300px 300px, 400px 400px, 350px 350px, 200px 200px;
+    background-position: 0 0, 100px 100px, 200px 50px, 50px 200px;
+}
+
+/* 手绘风格按钮 */
+.btn-handdrawn {
+    font-family: var(--handwritten-font);
+    font-weight: 500;
+    padding: 12px 24px;
+    border: 2px solid var(--ink-black);
+    background-color: var(--paper-white);
+    color: var(--ink-black);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    text-decoration: none;
+    display: inline-block;
+    
+    /* 手绘风格的不规则边框 */
+    border-radius: 15px 20px 18px 22px / 18px 15px 25px 20px;
+    
+    /* 手绘阴影效果 */
+    box-shadow: var(--sketch-shadow);
+    
+    /* 轻微的倾斜效果 */
+    transform: rotate(-0.5deg);
+}
+
+.btn-handdrawn:hover {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: 3px 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: var(--highlight-yellow);
+}
+
+.btn-handdrawn:active {
+    transform: rotate(0.5deg) translateY(0px);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 按钮变体 */
+.btn-primary {
+    background-color: var(--accent-blue);
+    border-color: var(--ink-blue);
+    color: var(--ink-blue);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #B0E0E6;
+}
+
+.btn-secondary {
+    background-color: var(--accent-orange);
+    border-color: var(--sketch-gray);
+    color: var(--ink-black);
+}
+
+.btn-secondary:hover {
+    background-color: #FFEFD5;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 12px 15px 14px 16px / 14px 12px 18px 15px;
+}
+
+/* 手绘风格输入框 */
+.input-handdrawn,
+.textarea-handdrawn,
+.select-handdrawn {
+    font-family: var(--body-font);
+    padding: 12px 16px;
+    border: 2px solid var(--sketch-gray);
+    background-color: var(--paper-white);
+    color: var(--ink-black);
+    width: 100%;
+    
+    /* 手绘风格边框 */
+    border-radius: 8px 12px 10px 14px / 10px 8px 15px 12px;
+    
+    /* 纸张质感 */
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(120, 119, 95, 0.02) 0%, transparent 50%);
+    
+    transition: all 0.3s ease;
+}
+
+.input-handdrawn:focus,
+.textarea-handdrawn:focus,
+.select-handdrawn:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+    transform: rotate(0deg);
+}
+
+.textarea-handdrawn {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* 手绘风格卡片 */
+.card-handdrawn {
+    background-color: var(--paper-white);
+    border: 2px solid var(--sketch-gray);
+    border-radius: 15px 20px 18px 22px / 18px 15px 25px 20px;
+    padding: 20px;
+    margin: 16px 0;
+    box-shadow: var(--paper-shadow);
+    position: relative;
+    
+    /* 轻微倾斜 */
+    transform: rotate(-0.2deg);
+    
+    /* 纸张纹理 */
+    background-image: 
+        radial-gradient(circle at 15% 25%, rgba(120, 119, 95, 0.02) 0%, transparent 50%),
+        radial-gradient(circle at 85% 75%, rgba(120, 119, 95, 0.02) 0%, transparent 50%);
+}
+
+.card-handdrawn:hover {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: var(--sketch-shadow);
+}
+
+/* 手绘风格标题 */
+.title-handdrawn {
+    font-family: var(--handwritten-font);
+    font-weight: 700;
+    color: var(--ink-black);
+    margin-bottom: 16px;
+    position: relative;
+    
+    /* 手绘下划线效果 */
+    text-decoration: none;
+}
+
+.title-handdrawn::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--accent-pink) 0%, 
+        var(--accent-blue) 50%, 
+        var(--accent-green) 100%);
+    border-radius: 2px;
+    transform: rotate(-0.5deg);
+}
+
+/* 手绘风格列表 */
+.list-handdrawn {
+    list-style: none;
+    padding: 0;
+}
+
+.list-handdrawn li {
+    position: relative;
+    padding: 8px 0 8px 24px;
+    margin: 8px 0;
+}
+
+.list-handdrawn li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    color: var(--accent-pink);
+    font-size: 18px;
+    font-weight: bold;
+    transform: rotate(15deg);
+}
+
+/* 手绘风格复选框 */
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: var(--paper-white);
+    border: 2px solid var(--sketch-gray);
+    border-radius: 6px 8px 7px 9px / 7px 6px 10px 8px;
+    transform: rotate(-1deg);
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: var(--highlight-yellow);
+    transform: rotate(0deg);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--accent-green);
+    border-color: var(--ink-blue);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid var(--ink-blue);
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* 手绘风格标签 */
+.tag-handdrawn {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: var(--accent-yellow);
+    color: var(--ink-black);
+    border: 1px solid var(--sketch-gray);
+    border-radius: 12px 15px 13px 16px / 13px 12px 17px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 2px;
+    transform: rotate(-1deg);
+    transition: transform 0.2s ease;
+}
+
+.tag-handdrawn:hover {
+    transform: rotate(0deg);
+}
+
+/* 优先级标签颜色 */
+.tag-priority-low { background-color: var(--accent-green); }
+.tag-priority-medium { background-color: var(--accent-orange); }
+.tag-priority-high { background-color: var(--accent-pink); }
+.tag-priority-urgent { 
+    background-color: #FFB6B6; 
+    border-color: #FF6B6B;
+    animation: pulse-urgent 2s infinite;
+}
+
+@keyframes pulse-urgent {
+    0%, 100% { transform: rotate(-1deg) scale(1); }
+    50% { transform: rotate(1deg) scale(1.05); }
+}
+
+/* 状态标签颜色 */
+.tag-status-pending { background-color: var(--accent-orange); }
+.tag-status-in-progress { background-color: var(--accent-blue); }
+.tag-status-completed { 
+    background-color: var(--accent-green);
+    text-decoration: line-through;
+}
+.tag-status-cancelled { 
+    background-color: var(--sketch-gray);
+    opacity: 0.7;
+}
+
+/* 手绘风格分隔线 */
+.divider-handdrawn {
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--sketch-gray) 20%, 
+        var(--sketch-gray) 80%, 
+        transparent 100%);
+    margin: 20px 0;
+    border-radius: 1px;
+    transform: rotate(-0.3deg);
+}
+
+/* 手绘风格工具提示 */
+.tooltip-handdrawn {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-handdrawn .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: var(--ink-black);
+    color: var(--paper-white);
+    text-align: center;
+    border-radius: 6px 8px 7px 9px / 7px 6px 10px 8px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    transform: rotate(-1deg);
+}
+
+.tooltip-handdrawn:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .btn-handdrawn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .card-handdrawn {
+        padding: 16px;
+        margin: 12px 0;
+    }
+    
+    .input-handdrawn,
+    .textarea-handdrawn,
+    .select-handdrawn {
+        padding: 10px 14px;
+    }
+}
+
+/* 动画效果 */
+@keyframes sketch-in {
+    0% {
+        opacity: 0;
+        transform: rotate(-2deg) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(-0.5deg) translateY(0);
+    }
+}
+
+.animate-sketch-in {
+    animation: sketch-in 0.5s ease-out;
+}
+
+/* 手绘风格加载动画 */
+@keyframes sketch-bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0) rotate(-1deg);
+    }
+    40% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+    60% {
+        transform: translateY(-5px) rotate(-0.5deg);
+    }
+}
+
+.loading-sketch {
+    animation: sketch-bounce 1.5s infinite;
+}
