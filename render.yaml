@@ -2,8 +2,10 @@ services:
   # PostgreSQL數據庫
   - type: pserv
     name: calendar-postgres
+    runtime: postgresql
     plan: free
     region: oregon
+    startCommand: postgres
     
   # Java應用
   - type: web
@@ -12,7 +14,6 @@ services:
     plan: free
     region: oregon
     buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/calendar-task-system-1.0.0.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
