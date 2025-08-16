@@ -8,6 +8,7 @@ services:
   # Java應用
   - type: web
     name: calendar-task-system
+    runtime: docker
     plan: free
     region: oregon
     buildCommand: mvn clean package -DskipTests
