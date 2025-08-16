@@ -1,0 +1,51 @@
+spring:
+  profiles: production
+  
+  # 數據庫配置（使用環境變量）
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./taskdb}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+        format_sql: false
+  
+  # 安全配置
+  security:
+    user:
+      name: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:admin123}
+  
+  # 服務器配置
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+  
+# 應用配置
+app:
+  jwt:
+    secret: ${JWT_SECRET:your-secret-key-here}
+    expiration: 86400000 # 24小時
+  
+  cors:
+    allowed-origins: "*"
+    allowed-methods: "*"
+    allowed-headers: "*"
+  
+# 日誌配置
+logging:
+  level:
+    root: WARN
+    com.taskmanager: INFO
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

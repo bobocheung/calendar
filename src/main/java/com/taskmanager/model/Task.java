@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -109,6 +110,41 @@ public class Task {
     private boolean isAllDay = false;
     
     /**
+     * 重複類型
+     * 定義任務的重複模式：無重複、每日、每週、每月、每年
+     */
+    @Enumerated(EnumType.STRING)
+    private RepeatType repeatType = RepeatType.NONE;
+    
+    /**
+     * 重複間隔
+     * 重複的頻率，例如每1天、每2週等
+     */
+    private Integer repeatInterval = 1;
+    
+    /**
+     * 重複結束日期
+     * 重複任務的結束日期，null表示無限重複
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime repeatEndDate;
+    
+    /**
+     * 原始任務ID
+     * 用於標識重複任務的來源任務
+     */
+    private Long originalTaskId;
+
+    /**
+     * 任務所屬用戶
+     * 用於多用戶系統的任務隔離
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
+    /**
      * 任務創建時間
      * 自動設定，記錄任務的創建時間點
      */
@@ -128,6 +164,10 @@ public class Task {
 
     public enum Status {
         PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+    }
+
+    public enum RepeatType {
+        NONE, DAILY, WEEKLY, MONTHLY, YEARLY
     }
 
     @PrePersist
@@ -230,6 +270,46 @@ public class Task {
 
     public void setAllDay(boolean allDay) {
         isAllDay = allDay;
+    }
+
+    public RepeatType getRepeatType() {
+        return repeatType;
+    }
+
+    public void setRepeatType(RepeatType repeatType) {
+        this.repeatType = repeatType;
+    }
+
+    public Integer getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(Integer repeatInterval) {
+        this.repeatInterval = repeatInterval;
+    }
+
+    public LocalDateTime getRepeatEndDate() {
+        return repeatEndDate;
+    }
+
+    public void setRepeatEndDate(LocalDateTime repeatEndDate) {
+        this.repeatEndDate = repeatEndDate;
+    }
+
+    public Long getOriginalTaskId() {
+        return originalTaskId;
+    }
+
+    public void setOriginalTaskId(Long originalTaskId) {
+        this.originalTaskId = originalTaskId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDateTime getCreatedAt() {

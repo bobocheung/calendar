@@ -31,6 +31,7 @@
     --accent-blue: #87CEEB;        /* 強調藍色 - 天空藍色調 */
     --accent-purple: #DDA0DD;      /* 強調紫色 - 淡雅的紫色調 */
     --accent-orange: #FFE4B5;      /* 強調橙色 - 溫暖的桃色調 */
+    --accent-cyan: #40E0D0;        /* 強調青色 - 清新的青綠色調 */
     
     /* 手繪風格陰影效果 - 模仿紙張和物體的自然陰影 */
     --sketch-shadow: 2px 3px 8px rgba(0, 0, 0, 0.15);  /* 素描陰影 */
@@ -354,6 +355,18 @@ body {
     opacity: 0.7;
 }
 
+/* 重複任務標籤顏色 */
+.tag-repeat { 
+    background-color: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: white;
+}
+.tag-repeating { 
+    background-color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+    color: white;
+}
+
 /* 手绘风格分隔线 */
 .divider-handdrawn {
     height: 2px;
@@ -398,7 +411,74 @@ body {
     transform: rotate(0deg);
 }
 
-/* 响应式设计 */
+/* API 消息提示樣式 */
+.api-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Kalam', cursive;
+    font-size: 16px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 400px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.success-message {
+    background-color: #d4edda;
+    border: 2px solid #c3e6cb;
+    color: #155724;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 2px solid #f5c6cb;
+    color: #721c24;
+}
+
+.api-message i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.api-message span {
+    flex-grow: 1;
+    line-height: 1.4;
+}
+
+.close-message {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.close-message:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 響應式設計 */
 @media (max-width: 768px) {
     .btn-handdrawn {
         padding: 10px 20px;
@@ -414,6 +494,14 @@ body {
     .textarea-handdrawn,
     .select-handdrawn {
         padding: 10px 14px;
+    }
+
+    .api-message {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        font-size: 14px;
     }
 }
 

@@ -161,4 +161,52 @@ public class TaskController {
         }
         return ResponseEntity.notFound().build();
     }
+    
+    // 创建重复任务
+    @PostMapping("/{id}/repeat")
+    public ResponseEntity<List<Task>> createRepeatingTasks(
+            @PathVariable Long id,
+            @RequestParam Task.RepeatType repeatType,
+            @RequestParam(defaultValue = "1") Integer repeatInterval,
+            @RequestParam(required = false) String repeatEndDate) {
+        
+        Optional<Task> originalTaskOpt = taskService.getTaskById(id);
+        if (!originalTaskOpt.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Task originalTask = originalTaskOpt.get();
+        LocalDateTime endDate = null;
+        
+        if (repeatEndDate != null && !repeatEndDate.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                endDate = LocalDateTime.parse(repeatEndDate, formatter);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        
+        List<Task> createdTasks = taskService.createRepeatingTasks(
+            originalTask, repeatType, repeatInterval, endDate);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTasks);
+    }
+    
+    // 获取重复任务
+    @GetMapping("/{id}/repeating")
+    public ResponseEntity<List<Task>> getRepeatingTasks(@PathVariable Long id) {
+        List<Task> repeatingTasks = taskService.getRepeatingTasks(id);
+        return ResponseEntity.ok(repeatingTasks);
+    }
+    
+    // 删除重复任务
+    @DeleteMapping("/{id}/repeating")
+    public ResponseEntity<Void> deleteRepeatingTasks(@PathVariable Long id) {
+        boolean deleted = taskService.deleteRepeatingTasks(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

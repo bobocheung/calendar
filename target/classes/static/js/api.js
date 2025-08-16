@@ -59,8 +59,44 @@ class TaskAPI {
     async handleResponse(response) {
         // 檢查HTTP狀態碼是否表示成功
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            let errorText = '';
+            try {
+                errorText = await response.text();
+                // 嘗試解析JSON錯誤信息
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.message) {
+                    errorText = errorJson.message;
+                } else if (errorJson.error) {
+                    errorText = errorJson.error;
+                }
+            } catch (e) {
+                // 如果不是JSON格式，使用原始文本
+                errorText = errorText || `HTTP ${response.status}`;
+            }
+            
+            // 根據HTTP狀態碼提供用戶友好的錯誤信息
+            let userMessage = '';
+            switch (response.status) {
+                case 400:
+                    userMessage = '請求資料格式錯誤：' + errorText;
+                    break;
+                case 401:
+                    userMessage = '未授權訪問，請重新登入';
+                    break;
+                case 403:
+                    userMessage = '權限不足，無法執行此操作';
+                    break;
+                case 404:
+                    userMessage = '請求的資源不存在';
+                    break;
+                case 500:
+                    userMessage = '伺服器內部錯誤，請稍後再試';
+                    break;
+                default:
+                    userMessage = `請求失敗 (${response.status}): ${errorText}`;
+            }
+            
+            throw new Error(userMessage);
         }
         
         // 檢查響應內容類型是否為JSON
@@ -396,7 +432,26 @@ class TaskAPI {
      * @param {string} message - 要顯示的成功訊息
      */
     showSuccess(message) {
-        this.showNotification(message, 'success');
+        // 創建成功提示元素
+        const successDiv = document.createElement('div');
+        successDiv.className = 'api-message success-message';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+            <button class="close-message" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // 添加到頁面
+        document.body.appendChild(successDiv);
+        
+        // 自動隱藏
+        setTimeout(() => {
+            if (successDiv.parentElement) {
+                successDiv.remove();
+            }
+        }, 5000);
     }
 
     /**
@@ -406,7 +461,26 @@ class TaskAPI {
      * @param {string} message - 要顯示的錯誤訊息
      */
     showError(message) {
-        this.showNotification(message, 'error');
+        // 創建錯誤提示元素
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'api-message error-message';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+            <button class="close-message" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // 添加到頁面
+        document.body.appendChild(errorDiv);
+        
+        // 自動隱藏
+        setTimeout(() => {
+            if (errorDiv.parentElement) {
+                errorDiv.remove();
+            }
+        }, 8000);
     }
 
     // 显示通知

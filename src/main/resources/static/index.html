@@ -308,6 +308,31 @@
                     </label>
                 </div>
                 
+                <!-- 重複任務選項 -->
+                <div class="form-group">
+                    <label for="taskRepeatType">重複</label>
+                    <div class="repeat-options">
+                        <select id="taskRepeatType" name="repeatType" class="select-handdrawn">
+                            <option value="NONE">不重複</option>
+                            <option value="DAILY">每日</option>
+                            <option value="WEEKLY">每週</option>
+                            <option value="MONTHLY">每月</option>
+                            <option value="YEARLY">每年</option>
+                        </select>
+                        <div class="repeat-interval" id="repeatIntervalContainer" style="display: none;">
+                            <span>每</span>
+                            <input type="number" id="taskRepeatInterval" name="repeatInterval" 
+                                   class="input-handdrawn input-small" value="1" min="1" max="365">
+                            <span id="repeatIntervalText">天</span>
+                        </div>
+                        <div class="repeat-end-date" id="repeatEndDateContainer" style="display: none;">
+                            <label for="taskRepeatEndDate">重複結束日期</label>
+                            <input type="date" id="taskRepeatEndDate" name="repeatEndDate" 
+                                   class="input-handdrawn">
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 表單操作按鈕 -->
                 <div class="form-actions">
                     <button type="button" class="btn-handdrawn btn-secondary" id="cancelBtn">取消</button>

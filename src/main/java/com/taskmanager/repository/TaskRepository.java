@@ -48,4 +48,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // 查询过期未完成的任务
     @Query("SELECT t FROM Task t WHERE t.endTime < CURRENT_TIMESTAMP AND t.status != 'COMPLETED' AND t.status != 'CANCELLED' ORDER BY t.endTime")
     List<Task> findOverdueTasks();
+    
+    // 根据原始任务ID查询重复任务
+    List<Task> findByOriginalTaskId(Long originalTaskId);
 }

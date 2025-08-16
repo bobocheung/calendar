@@ -109,6 +109,16 @@ class TaskManager {
             }
         });
 
+        // 重複類型選擇事件監聽器
+        document.getElementById('taskRepeatType').addEventListener('change', (e) => {
+            this.updateRepeatOptions(e.target.value);
+        });
+
+        // 重複間隔輸入事件監聽器
+        document.getElementById('taskRepeatInterval').addEventListener('input', (e) => {
+            this.updateRepeatIntervalText();
+        });
+
         // 分類篩選事件監聽器
         document.querySelectorAll('.category-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -179,6 +189,8 @@ class TaskManager {
                 <span class="tag-handdrawn tag-priority-${task.priority.toLowerCase()}">${this.getPriorityText(task.priority)}</span>
                 <span class="tag-handdrawn tag-status-${task.status.toLowerCase().replace('_', '-')}">${this.getStatusText(task.status)}</span>
                 ${task.category ? `<span class="tag-handdrawn">${this.escapeHtml(task.category)}</span>` : ''}
+                ${task.repeatType && task.repeatType !== 'NONE' ? `<span class="tag-handdrawn tag-repeat">${this.getRepeatTypeText(task.repeatType)}</span>` : ''}
+                ${task.originalTaskId ? `<span class="tag-handdrawn tag-repeating">重複任務</span>` : ''}
             </div>
         `;
 
@@ -223,25 +235,173 @@ class TaskManager {
         document.getElementById('taskCategory').value = task.category || '';
         document.getElementById('taskColor').value = task.color || '#FFE4B5';
         document.getElementById('taskAllDay').checked = task.allDay || false;
+        
+        // 設置重複任務選項
+        if (task.repeatType) {
+            document.getElementById('taskRepeatType').value = task.repeatType;
+            this.updateRepeatOptions(task.repeatType);
+        } else {
+            document.getElementById('taskRepeatType').value = 'NONE';
+            this.updateRepeatOptions('NONE');
+        }
+        
+        if (task.repeatInterval) {
+            document.getElementById('taskRepeatInterval').value = task.repeatInterval;
+        }
+        
+        if (task.repeatEndDate) {
+            const endDate = new Date(task.repeatEndDate);
+            document.getElementById('taskRepeatEndDate').value = this.formatDate(endDate);
+        }
     }
 
     async handleTaskSubmit() {
         const formData = new FormData(document.getElementById('taskForm'));
+        
+        // 處理日期時間格式轉換
+        let startTime = formData.get('startTime');
+        let endTime = formData.get('endTime') || null;
+        
+        // 將前端日期時間格式轉換為後端期望的格式
+        if (startTime) {
+            try {
+                // 處理標準ISO格式：2025-08-17T12:22
+                let startDate = new Date(startTime);
+                
+                // 檢查日期是否有效
+                if (isNaN(startDate.getTime())) {
+                    throw new Error('無效的開始時間格式');
+                }
+                
+                // 轉換為後端期望的格式：YYYY-MM-DD HH:mm:ss
+                const year = startDate.getFullYear();
+                const month = String(startDate.getMonth() + 1).padStart(2, '0');
+                const day = String(startDate.getDate()).padStart(2, '0');
+                const hours = String(startDate.getHours()).padStart(2, '0');
+                const minutes = String(startDate.getMinutes()).padStart(2, '0');
+                const seconds = String(startDate.getSeconds()).padStart(2, '0');
+                
+                startTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                
+                console.log('開始時間格式化:', formData.get('startTime'), '->', startTime);
+            } catch (error) {
+                console.error('開始時間格式轉換失敗:', error);
+                window.taskAPI.showError('開始時間格式錯誤，請重新選擇');
+                return;
+            }
+        }
+        
+        if (endTime) {
+            try {
+                // 處理標準ISO格式：2025-08-17T16:22
+                let endDate = new Date(endTime);
+                
+                // 檢查日期是否有效
+                if (isNaN(endDate.getTime())) {
+                    throw new Error('無效的結束時間格式');
+                }
+                
+                // 轉換為後端期望的格式：YYYY-MM-DD HH:mm:ss
+                const year = endDate.getFullYear();
+                const month = String(endDate.getMonth() + 1).padStart(2, '0');
+                const day = String(endDate.getDate()).padStart(2, '0');
+                const hours = String(endDate.getHours()).padStart(2, '0');
+                const minutes = String(endDate.getMinutes()).padStart(2, '0');
+                const seconds = String(endDate.getSeconds()).padStart(2, '0');
+                
+                endTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                
+                console.log('結束時間格式化:', formData.get('endTime'), '->', endTime);
+            } catch (error) {
+                console.error('結束時間格式轉換失敗:', error);
+                window.taskAPI.showError('結束時間格式錯誤，請重新選擇');
+                return;
+            }
+        }
+        
         const taskData = {
             title: formData.get('title'),
             description: formData.get('description'),
-            startTime: formData.get('startTime'),
-            endTime: formData.get('endTime') || null,
+            startTime: startTime,
+            endTime: endTime,
             priority: formData.get('priority'),
             category: formData.get('category') || null,
             color: formData.get('color'),
-            allDay: formData.has('allDay')
+            allDay: formData.has('allDay'),
+            repeatType: formData.get('repeatType'),
+            repeatInterval: parseInt(formData.get('repeatInterval')) || 1,
+            repeatEndDate: null
         };
+
+        // 處理重複結束日期格式轉換
+        if (formData.get('repeatEndDate')) {
+            try {
+                const repeatEndDate = formData.get('repeatEndDate');
+                // 將日期轉換為完整的日期時間格式
+                const endDate = new Date(repeatEndDate);
+                endDate.setHours(23, 59, 59, 999);
+                
+                // 轉換為後端期望的格式：YYYY-MM-DD HH:mm:ss
+                const year = endDate.getFullYear();
+                const month = String(endDate.getMonth() + 1).padStart(2, '0');
+                const day = String(endDate.getDate()).padStart(2, '0');
+                const hours = String(endDate.getHours()).padStart(2, '0');
+                const minutes = String(endDate.getMinutes()).padStart(2, '0');
+                const seconds = String(endDate.getSeconds()).padStart(2, '0');
+                
+                taskData.repeatEndDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                
+                console.log('重複結束日期格式化:', formData.get('repeatEndDate'), '->', taskData.repeatEndDate);
+            } catch (error) {
+                console.error('重複結束日期格式轉換失敗:', error);
+                window.taskAPI.showError('重複結束日期格式錯誤，請重新選擇');
+                return;
+            }
+        }
+
+        // 添加調試信息
+        console.log('發送到後端的任務數據:', JSON.stringify(taskData, null, 2));
+        console.log('開始時間類型:', typeof taskData.startTime, '值:', taskData.startTime);
+        console.log('結束時間類型:', typeof taskData.endTime, '值:', taskData.endTime);
+        console.log('重複結束日期類型:', typeof taskData.repeatEndDate, '值:', taskData.repeatEndDate);
 
         // 验证必填字段
         if (!taskData.title || !taskData.startTime) {
-            window.taskAPI.showError('请填写任务标题和开始时间');
+            let errorMessage = '';
+            if (!taskData.title) {
+                errorMessage += '請填寫任務標題\n';
+            }
+            if (!taskData.startTime) {
+                errorMessage += '請選擇開始時間\n';
+            }
+            window.taskAPI.showError(errorMessage.trim());
             return;
+        }
+
+        // 驗證日期邏輯
+        if (taskData.endTime && taskData.startTime) {
+            const startDate = new Date(taskData.startTime);
+            const endDate = new Date(taskData.endTime);
+            if (endDate <= startDate) {
+                window.taskAPI.showError('結束時間必須晚於開始時間');
+                return;
+            }
+        }
+
+        // 驗證重複任務設定
+        if (taskData.repeatType && taskData.repeatType !== 'NONE') {
+            if (taskData.repeatInterval < 1) {
+                window.taskAPI.showError('重複間隔必須大於0');
+                return;
+            }
+            if (taskData.repeatEndDate) {
+                const startDate = new Date(taskData.startTime);
+                const endDate = new Date(taskData.repeatEndDate);
+                if (endDate <= startDate) {
+                    window.taskAPI.showError('重複結束日期必須晚於開始時間');
+                    return;
+                }
+            }
         }
 
         try {
@@ -250,6 +410,11 @@ class TaskManager {
                 result = await window.taskAPI.updateTask(this.currentEditingTask.id, taskData);
             } else {
                 result = await window.taskAPI.createTask(taskData);
+                
+                // 如果设置了重复，创建重复任务
+                if (result && taskData.repeatType && taskData.repeatType !== 'NONE') {
+                    await this.createRepeatingTasks(result.id, taskData);
+                }
             }
 
             if (result) {
@@ -263,6 +428,18 @@ class TaskManager {
             }
         } catch (error) {
             console.error('保存任务失败:', error);
+            // 提供更詳細的錯誤信息
+            let errorMessage = '保存任務失敗';
+            if (error.message) {
+                if (error.message.includes('HTTP 400')) {
+                    errorMessage = '任務資料格式錯誤，請檢查必填欄位和日期格式';
+                } else if (error.message.includes('HTTP 500')) {
+                    errorMessage = '伺服器內部錯誤，請稍後再試';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+            window.taskAPI.showError(errorMessage);
         }
     }
 
@@ -450,6 +627,102 @@ class TaskManager {
         
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
+    
+    /**
+     * 格式化日期為HTML date input的格式
+     * 將Date對象轉換為YYYY-MM-DD格式的字符串
+     * 
+     * @param {Date} date 日期對象
+     * @returns {string} 格式化後的日期字符串
+     */
+    formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+    }
+    
+    /**
+     * 創建重複任務
+     * 調用後端API創建重複任務
+     * 
+     * @param {number} taskId 原始任務ID
+     * @param {object} taskData 任務數據
+     */
+    async createRepeatingTasks(taskId, taskData) {
+        try {
+            const params = new URLSearchParams({
+                repeatType: taskData.repeatType,
+                repeatInterval: taskData.repeatInterval
+            });
+            
+            if (taskData.repeatEndDate) {
+                try {
+                    // 處理本地化的日期格式
+                    let endDate;
+                    if (taskData.repeatEndDate.includes('/')) {
+                        // 處理本地化格式：2025/11/30
+                        const dateParts = taskData.repeatEndDate.split('/');
+                        const year = parseInt(dateParts[0]);
+                        const month = parseInt(dateParts[1]) - 1; // 月份從0開始
+                        const day = parseInt(dateParts[2]);
+                        
+                        endDate = new Date(year, month, day);
+                    } else {
+                        // 處理標準格式
+                        endDate = new Date(taskData.repeatEndDate);
+                    }
+                    
+                    // 檢查日期是否有效
+                    if (isNaN(endDate.getTime())) {
+                        throw new Error('無效的重複結束日期格式');
+                    }
+                    
+                    // 設定為當天的最後時刻
+                    endDate.setHours(23, 59, 59, 999);
+                    
+                    // 使用與後端一致的格式：YYYY-MM-DD HH:mm:ss
+                    const year = endDate.getFullYear();
+                    const month = String(endDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(endDate.getDate()).padStart(2, '0');
+                    const hours = String(endDate.getHours()).padStart(2, '0');
+                    const minutes = String(endDate.getMinutes()).padStart(2, '0');
+                    const seconds = String(endDate.getSeconds()).padStart(2, '0');
+                    
+                    const formattedEndDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                    params.append('repeatEndDate', formattedEndDate);
+                    
+                    console.log('重複結束日期格式化:', taskData.repeatEndDate, '->', formattedEndDate);
+                } catch (error) {
+                    console.error('重複結束日期格式轉換失敗:', error);
+                    window.taskAPI.showError('重複結束日期格式錯誤，請重新選擇');
+                    return;
+                }
+            }
+            
+            const response = await fetch(`/api/tasks/${taskId}/repeat?${params}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const createdTasks = await response.json();
+                console.log(`成功創建 ${createdTasks.length} 個重複任務`);
+                window.taskAPI.showSuccess(`成功創建 ${createdTasks.length} 個重複任務`);
+            } else {
+                console.error('創建重複任務失敗');
+                const errorText = await response.text();
+                console.error('錯誤詳情:', errorText);
+                window.taskAPI.showError('創建重複任務失敗');
+            }
+        } catch (error) {
+            console.error('創建重複任務時發生錯誤:', error);
+            window.taskAPI.showError('創建重複任務時發生錯誤: ' + error.message);
+        }
+    }
 
     /**
      * 獲取優先級的繁體中文顯示文字
@@ -484,6 +757,23 @@ class TaskManager {
         };
         return statusMap[status] || status;
     }
+    
+    /**
+     * 獲取重複類型的繁體中文顯示文字
+     * 將英文重複類型代碼轉換為用戶友好的繁體中文
+     * 
+     * @param {string} repeatType - 重複類型代碼（DAILY/WEEKLY/MONTHLY/YEARLY）
+     * @returns {string} 繁體中文重複類型文字
+     */
+    getRepeatTypeText(repeatType) {
+        const repeatTypeMap = {
+            'DAILY': '每日',
+            'WEEKLY': '每週',
+            'MONTHLY': '每月',
+            'YEARLY': '每年'
+        };
+        return repeatTypeMap[repeatType] || repeatType;
+    }
 
     isOverdue(task) {
         if (task.status === 'COMPLETED' || task.status === 'CANCELLED') {
@@ -498,5 +788,47 @@ class TaskManager {
     // 刷新任务列表
     async refresh() {
         await this.loadTasks();
+    }
+    
+    /**
+     * 更新重複選項的顯示
+     * 根據選擇的重複類型顯示或隱藏相關選項
+     * 
+     * @param {string} repeatType 重複類型
+     */
+    updateRepeatOptions(repeatType) {
+        const intervalContainer = document.getElementById('repeatIntervalContainer');
+        const endDateContainer = document.getElementById('repeatEndDateContainer');
+        const intervalText = document.getElementById('repeatIntervalText');
+        
+        if (repeatType === 'NONE') {
+            intervalContainer.style.display = 'none';
+            endDateContainer.style.display = 'none';
+        } else {
+            intervalContainer.style.display = 'flex';
+            endDateContainer.style.display = 'block';
+            
+            // 更新間隔文字
+            this.updateRepeatIntervalText();
+        }
+    }
+    
+    /**
+     * 更新重複間隔的文字描述
+     * 根據重複類型和間隔值顯示適當的文字
+     */
+    updateRepeatIntervalText() {
+        const repeatType = document.getElementById('taskRepeatType').value;
+        const repeatInterval = document.getElementById('taskRepeatInterval').value;
+        const intervalText = document.getElementById('repeatIntervalText');
+        
+        const textMap = {
+            'DAILY': repeatInterval === '1' ? '天' : '天',
+            'WEEKLY': repeatInterval === '1' ? '週' : '週',
+            'MONTHLY': repeatInterval === '1' ? '月' : '月',
+            'YEARLY': repeatInterval === '1' ? '年' : '年'
+        };
+        
+        intervalText.textContent = textMap[repeatType] || '天';
     }
 }

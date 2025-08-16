@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class TaskService {
@@ -135,5 +136,112 @@ public class TaskService {
             return taskRepository.save(task);
         }
         return null;
+    }
+    
+    /**
+     * 創建重複任務
+     * 根據重複類型和間隔創建多個重複的任務
+     * 
+     * @param originalTask 原始任務
+     * @param repeatType 重複類型
+     * @param repeatInterval 重複間隔
+     * @param repeatEndDate 重複結束日期
+     * @return 創建的任務列表
+     */
+    public List<Task> createRepeatingTasks(Task originalTask, Task.RepeatType repeatType, 
+                                         Integer repeatInterval, LocalDateTime repeatEndDate) {
+        List<Task> createdTasks = new ArrayList<>();
+        
+        if (repeatType == Task.RepeatType.NONE || repeatInterval <= 0) {
+            return createdTasks;
+        }
+        
+        LocalDateTime currentDate = originalTask.getStartTime();
+        LocalDateTime endDate = repeatEndDate != null ? repeatEndDate : 
+                               currentDate.plusYears(1); // 默認重複一年
+        
+        int taskCount = 0;
+        int maxTasks = 1000; // 防止無限循環
+        
+        while (currentDate.isBefore(endDate) && taskCount < maxTasks) {
+            if (taskCount > 0) { // 跳過第一個任務（原始任務）
+                Task repeatingTask = new Task();
+                repeatingTask.setTitle(originalTask.getTitle());
+                repeatingTask.setDescription(originalTask.getDescription());
+                repeatingTask.setStartTime(currentDate);
+                repeatingTask.setEndTime(calculateEndTime(originalTask, currentDate));
+                repeatingTask.setPriority(originalTask.getPriority());
+                repeatingTask.setStatus(Task.Status.PENDING);
+                repeatingTask.setCategory(originalTask.getCategory());
+                repeatingTask.setColor(originalTask.getColor());
+                repeatingTask.setAllDay(originalTask.isAllDay());
+                repeatingTask.setRepeatType(Task.RepeatType.NONE); // 重複任務本身不再重複
+                repeatingTask.setOriginalTaskId(originalTask.getId());
+                
+                createdTasks.add(taskRepository.save(repeatingTask));
+            }
+            
+            // 計算下一個重複日期
+            currentDate = calculateNextRepeatDate(currentDate, repeatType, repeatInterval);
+            taskCount++;
+        }
+        
+        return createdTasks;
+    }
+    
+    /**
+     * 計算重複任務的結束時間
+     * 保持原始任務的持續時間
+     */
+    private LocalDateTime calculateEndTime(Task originalTask, LocalDateTime newStartTime) {
+        if (originalTask.getEndTime() == null) {
+            return null;
+        }
+        
+        long durationInSeconds = java.time.Duration.between(
+            originalTask.getStartTime(), 
+            originalTask.getEndTime()
+        ).getSeconds();
+        
+        return newStartTime.plusSeconds(durationInSeconds);
+    }
+    
+    /**
+     * 計算下一個重複日期
+     * 根據重複類型和間隔計算
+     */
+    private LocalDateTime calculateNextRepeatDate(LocalDateTime currentDate, 
+                                                Task.RepeatType repeatType, 
+                                                Integer repeatInterval) {
+        switch (repeatType) {
+            case DAILY:
+                return currentDate.plusDays(repeatInterval);
+            case WEEKLY:
+                return currentDate.plusWeeks(repeatInterval);
+            case MONTHLY:
+                return currentDate.plusMonths(repeatInterval);
+            case YEARLY:
+                return currentDate.plusYears(repeatInterval);
+            default:
+                return currentDate;
+        }
+    }
+    
+    /**
+     * 獲取重複任務
+     * 根據原始任務ID獲取所有相關的重複任務
+     */
+    public List<Task> getRepeatingTasks(Long originalTaskId) {
+        return taskRepository.findByOriginalTaskId(originalTaskId);
+    }
+    
+    /**
+     * 刪除重複任務
+     * 刪除指定原始任務的所有重複任務
+     */
+    public boolean deleteRepeatingTasks(Long originalTaskId) {
+        List<Task> repeatingTasks = taskRepository.findByOriginalTaskId(originalTaskId);
+        taskRepository.deleteAll(repeatingTasks);
+        return true;
     }
 }

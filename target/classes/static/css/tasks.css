@@ -311,26 +311,58 @@
 
 /* 任务表单 */
 .task-form {
-    padding: 0 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: var(--ink-black);
     font-family: var(--handwritten-font);
-    transform: rotate(-0.3deg);
+    font-weight: 500;
+    color: var(--ink-black);
+    font-size: 1rem;
+    transform: rotate(-0.2deg);
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+}
+
+/* 重複任務選項樣式 */
+.repeat-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.repeat-interval {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--handwritten-font);
+    font-size: 0.9rem;
+}
+
+.repeat-interval .input-small {
+    width: 80px;
+    text-align: center;
+}
+
+.repeat-end-date {
+    margin-top: 8px;
+}
+
+.repeat-end-date label {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
 }
 
 /* 颜色选择器 */
