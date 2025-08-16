@@ -2,23 +2,31 @@
   "version": 2,
   "builds": [
     {
-      "src": "target/*.jar",
+      "src": "pom.xml",
       "use": "@vercel/java"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/target/calendar-task-system-1.0.0.jar"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/src/main/resources/static/$1"
+      "dest": "/$1"
     }
   ],
+  "functions": {
+    "api/**/*.java": {
+      "runtime": "java17"
+    }
+  },
   "env": {
     "SPRING_PROFILES_ACTIVE": "production",
     "DATABASE_URL": "@database_url",
-    "JWT_SECRET": "@jwt_secret"
+    "JWT_SECRET": "@jwt_secret",
+    "DB_USERNAME": "@db_username",
+    "DB_PASSWORD": "@db_password",
+    "PORT": "8080"
   }
 }
