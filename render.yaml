@@ -2,14 +2,12 @@ services:
   # PostgreSQL數據庫
   - type: pserv
     name: calendar-postgres
-    runtime: postgresql
     plan: free
     region: oregon
     
   # Java應用
   - type: web
     name: calendar-task-system
-    runtime: java
     plan: free
     region: oregon
     buildCommand: mvn clean package -DskipTests
