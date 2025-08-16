@@ -29,9 +29,5 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         generateValue: true
-    database:
-      name: calendar-postgres
-      user: calendar_user
-      database: calendar_db
     healthCheckPath: /api/health
     autoDeploy: true
