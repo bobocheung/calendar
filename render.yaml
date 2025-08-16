@@ -2,8 +2,17 @@ services:
   # PostgreSQL數據庫
   - type: pserv
     name: calendar-postgres
+    runtime: docker
     plan: free
     region: oregon
+    image: postgres:15
+    envVars:
+      - key: POSTGRES_DB
+        value: calendar_db
+      - key: POSTGRES_USER
+        value: calendar_user
+      - key: POSTGRES_PASSWORD
+        generateValue: true
     
   # Java應用
   - type: web
