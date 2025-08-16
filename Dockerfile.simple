@@ -1,19 +1,22 @@
-# 使用國內鏡像源的OpenJDK 17
-FROM registry.cn-hangzhou.aliyuncs.com/library/java:17-jdk-slim
+# 簡化版Dockerfile - 使用官方鏡像源
+FROM openjdk:17-jdk-slim
+
+# 安裝Maven和curl
+RUN apt-get update && \
+    apt-get install -y maven curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # 設置工作目錄
 WORKDIR /app
 
 # 複製Maven配置文件
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
 
 # 複製源代碼
 COPY src src
 
 # 構建應用
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # 創建運行時目錄
 RUN mkdir -p /app/runtime
@@ -27,10 +30,6 @@ ENV SERVER_PORT=8080
 
 # 暴露端口
 EXPOSE 8080
-
-# 健康檢查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/api/health || exit 1
 
 # 啟動應用
 CMD ["java", "-jar", "/app/runtime/app.jar"]

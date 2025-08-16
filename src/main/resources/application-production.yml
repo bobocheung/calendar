@@ -1,5 +1,7 @@
 spring:
-  profiles: production
+  config:
+    activate:
+      on-profile: production
   
   # 數據庫配置（使用環境變量）
   datasource:
