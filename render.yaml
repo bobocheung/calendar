@@ -30,6 +30,18 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: calendar-postgres
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: calendar-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: calendar-postgres
+          property: password
     database:
       name: calendar-postgres
       user: calendar_user
