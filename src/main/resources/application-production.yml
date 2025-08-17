@@ -3,22 +3,12 @@ spring:
     activate:
       on-profile: production
   
-  # 數據庫配置（暫時使用H2內存數據庫測試）
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
-  
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        format_sql: false
+  # 禁用數據庫
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
   
   # 服務器配置
 server:
@@ -29,9 +19,8 @@ server:
 # 日誌配置
 logging:
   level:
-    root: WARN
-    com.taskmanager: INFO
-    org.springframework: WARN
-    org.hibernate: WARN
+    root: INFO
+    com.taskmanager: DEBUG
+    org.springframework: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
