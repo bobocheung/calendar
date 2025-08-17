@@ -9,6 +9,7 @@ services:
     name: calendar-task-system
     plan: free
     runtime: docker
+    buildCommand: mvn clean package -DskipTests
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
