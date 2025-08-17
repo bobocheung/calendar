@@ -537,3 +537,77 @@ body {
 .loading-sketch {
     animation: sketch-bounce 1.5s infinite;
 }
+
+/* 用戶信息樣式 */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-right: 20px;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 25px;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-name {
+    font-family: 'Kalam', cursive;
+    font-size: 0.95rem;
+    color: #4a4a4a;
+    font-weight: 500;
+}
+
+#logoutBtn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    border: none;
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Kalam', cursive;
+    font-weight: 500;
+}
+
+#logoutBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    background: linear-gradient(135deg, #ff5252, #d32f2f);
+}
+
+#logoutBtn:active {
+    transform: translateY(0);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .user-info {
+        margin-right: 10px;
+        padding: 6px 12px;
+        gap: 10px;
+    }
+    
+    .user-name {
+        font-size: 0.85rem;
+    }
+    
+    #logoutBtn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-end;
+    }
+    
+    .user-info {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}

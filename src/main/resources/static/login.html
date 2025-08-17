@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 手繪風格任務管理系統</title>
+    <link rel="stylesheet" href="css/handdrawn-styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 手繪風格的紙張背景 -->
+    <div class="paper-background"></div>
+    
+    <!-- 主容器 -->
+    <div class="auth-container">
+        <!-- 應用標題 -->
+        <div class="auth-header">
+            <h1 class="app-title">
+                <i class="fas fa-calendar-alt"></i>
+                我的任務日曆
+            </h1>
+            <p class="app-subtitle">歡迎回來！請登入您的帳戶</p>
+        </div>
+
+        <!-- 登入表單 -->
+        <div class="auth-form-container" id="loginForm">
+            <h2 class="form-title">登入</h2>
+            <form class="auth-form" id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginUsername">用戶名或郵箱</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="loginUsername" name="usernameOrEmail" 
+                               class="input-handdrawn" required 
+                               placeholder="輸入用戶名或郵箱">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">密碼</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="loginPassword" name="password" 
+                               class="input-handdrawn" required 
+                               placeholder="輸入密碼">
+                        <button type="button" class="password-toggle" id="loginPasswordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <span class="checkmark"></span>
+                        記住我
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-handdrawn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i>
+                    登入
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>還沒有帳戶？ 
+                    <a href="#" class="auth-link" id="showRegisterLink">立即註冊</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- 註冊表單 -->
+        <div class="auth-form-container hidden" id="registerForm">
+            <h2 class="form-title">註冊</h2>
+            <form class="auth-form" id="registerFormElement">
+                <div class="form-group">
+                    <label for="registerUsername">用戶名</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="registerUsername" name="username" 
+                               class="input-handdrawn" required 
+                               placeholder="輸入用戶名（3-50個字符）">
+                    </div>
+                    <div class="input-feedback" id="usernameFeedback"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">郵箱</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="registerEmail" name="email" 
+                               class="input-handdrawn" required 
+                               placeholder="輸入郵箱地址">
+                    </div>
+                    <div class="input-feedback" id="emailFeedback"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerDisplayName">顯示名稱（可選）</label>
+                    <div class="input-group">
+                        <i class="fas fa-id-card input-icon"></i>
+                        <input type="text" id="registerDisplayName" name="displayName" 
+                               class="input-handdrawn" 
+                               placeholder="輸入顯示名稱">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">密碼</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="registerPassword" name="password" 
+                               class="input-handdrawn" required 
+                               placeholder="輸入密碼（至少6個字符）">
+                        <button type="button" class="password-toggle" id="registerPasswordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerConfirmPassword">確認密碼</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="registerConfirmPassword" name="confirmPassword" 
+                               class="input-handdrawn" required 
+                               placeholder="再次輸入密碼">
+                        <button type="button" class="password-toggle" id="registerConfirmPasswordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="input-feedback" id="passwordFeedback"></div>
+                </div>
+                
+                <button type="submit" class="btn-handdrawn btn-primary btn-full">
+                    <i class="fas fa-user-plus"></i>
+                    註冊
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>已有帳戶？ 
+                    <a href="#" class="auth-link" id="showLoginLink">立即登入</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- 載入中提示 -->
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>處理中...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

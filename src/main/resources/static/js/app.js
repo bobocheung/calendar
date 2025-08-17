@@ -30,6 +30,9 @@ class App {
         // 任務管理組件實例
         this.taskManager = null;
         
+        // 用戶信息
+        this.currentUser = null;
+        
         // 初始化應用程式
         this.init();
     }
@@ -38,14 +41,39 @@ class App {
         // 等待DOM加载完成
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                this.initializeApp();
+                this.checkAuthAndInitialize();
             });
         } else {
+            this.checkAuthAndInitialize();
+        }
+    }
+
+    checkAuthAndInitialize() {
+        // 檢查用戶是否已登入
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userData = localStorage.getItem('user');
+        
+        if (isLoggedIn !== 'true' || !userData) {
+            // 未登入，跳轉到登入頁面
+            window.location.href = '/login.html';
+            return;
+        }
+        
+        try {
+            this.currentUser = JSON.parse(userData);
             this.initializeApp();
+        } catch (error) {
+            console.error('解析用戶數據失敗:', error);
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
         }
     }
 
     initializeApp() {
+        // 顯示用戶信息
+        this.displayUserInfo();
+        
         // 初始化组件
         this.calendar = new Calendar();
         this.taskManager = new TaskManager();
@@ -66,7 +94,23 @@ class App {
         console.log('任务管理系统初始化完成');
     }
 
+    displayUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        
+        if (this.currentUser) {
+            const displayName = this.currentUser.displayName || this.currentUser.username;
+            userName.textContent = `歡迎，${displayName}`;
+            userInfo.style.display = 'flex';
+        }
+    }
+
     bindEvents() {
+        // 登出按鈕
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            this.handleLogout();
+        });
+
         // 导航菜单
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -93,14 +137,23 @@ class App {
         });
     }
 
+    handleLogout() {
+        // 清除本地存儲的用戶信息
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('user');
+        
+        // 跳轉到登入頁面
+        window.location.href = '/login.html';
+    }
+
     showView(viewName) {
         // 隐藏所有视图
         document.querySelectorAll('.view-container').forEach(view => {
             view.classList.remove('active');
         });
-
+        
         // 显示指定视图
-        const targetView = document.getElementById(`${viewName}View`);
+        const targetView = document.getElementById(viewName + 'View');
         if (targetView) {
             targetView.classList.add('active');
             this.currentView = viewName;
@@ -110,120 +163,97 @@ class App {
         }
     }
 
-    async loadViewData(viewName) {
-        switch (viewName) {
-            case 'calendar':
-                if (this.calendar) {
-                    this.calendar.refresh();
-                }
-                break;
-                
-            case 'tasks':
-                if (this.taskManager) {
-                    await this.taskManager.refresh();
-                }
-                break;
-                
-            case 'today':
-                if (this.taskManager) {
-                    await this.taskManager.loadTodayTasks();
-                }
-                break;
-                
-            case 'upcoming':
-                if (this.taskManager) {
-                    await this.taskManager.loadUpcomingTasks();
-                }
-                break;
-        }
-    }
-
     updateActiveNavItem(activeItem) {
-        // 移除所有活动状态
+        // 移除所有导航项的active类
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
         
-        // 添加活动状态到当前项
+        // 为当前活动的导航项添加active类
         activeItem.classList.add('active');
     }
 
     toggleView() {
-        const button = document.getElementById('viewToggle');
-        const icon = button.querySelector('i');
+        const toggleBtn = document.getElementById('viewToggle');
+        const icon = toggleBtn.querySelector('i');
+        const text = toggleBtn.textContent.trim();
         
         if (this.currentView === 'calendar') {
             this.showView('tasks');
-            button.innerHTML = '<i class="fas fa-calendar"></i> 日历视图';
+            icon.className = 'fas fa-calendar';
+            toggleBtn.innerHTML = '<i class="fas fa-calendar"></i> 日曆檢視';
         } else {
             this.showView('calendar');
-            button.innerHTML = '<i class="fas fa-th"></i> 月视图';
+            icon.className = 'fas fa-th';
+            toggleBtn.innerHTML = '<i class="fas fa-th"></i> 月檢視';
         }
     }
 
-    async loadInitialData() {
-        try {
-            // 加载任务数据
-            await this.taskManager.loadTasks();
-            
-            // 加载今日任务
-            await this.taskManager.loadTodayTasks();
-            
-            // 加载即将到期的任务
-            await this.taskManager.loadUpcomingTasks();
-            
-        } catch (error) {
-            console.error('加载初始数据失败:', error);
-            window.taskAPI.showError('加载数据失败，请刷新页面重试');
+    loadViewData(viewName) {
+        switch (viewName) {
+            case 'calendar':
+                this.calendar.loadCalendarData();
+                break;
+            case 'tasks':
+                this.taskManager.loadTasks();
+                break;
+            case 'today':
+                this.taskManager.loadTodayTasks();
+                break;
+            case 'upcoming':
+                this.taskManager.loadUpcomingTasks();
+                break;
         }
+    }
+
+    loadInitialData() {
+        // 加载初始数据
+        this.calendar.loadCalendarData();
+        this.taskManager.loadTasks();
+        this.updateStats();
+    }
+
+    updateStats() {
+        // 更新统计信息
+        this.taskManager.getStats().then(stats => {
+            document.getElementById('totalTasks').textContent = stats.total || 0;
+            document.getElementById('completedTasks').textContent = stats.completed || 0;
+            document.getElementById('pendingTasks').textContent = stats.pending || 0;
+        });
     }
 
     handleKeyboardShortcuts(e) {
-        // Ctrl/Cmd + N: 新建任务
-        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-            e.preventDefault();
-            this.taskManager.showTaskModal();
-        }
-        
-        // Escape: 关闭模态框
-        if (e.key === 'Escape') {
-            const modal = document.getElementById('taskModal');
-            if (modal.classList.contains('show')) {
-                this.taskManager.hideTaskModal();
-            }
-        }
-        
-        // 数字键切换视图
-        if (e.key >= '1' && e.key <= '4') {
-            const views = ['calendar', 'tasks', 'today', 'upcoming'];
-            const viewIndex = parseInt(e.key) - 1;
-            if (views[viewIndex]) {
-                this.showView(views[viewIndex]);
-                
-                // 更新导航状态
-                const navItem = document.querySelector(`[data-view="${views[viewIndex]}"]`);
-                if (navItem) {
-                    this.updateActiveNavItem(navItem);
-                }
+        // 键盘快捷键处理
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case 'n':
+                    e.preventDefault();
+                    this.taskManager.showAddTaskModal();
+                    break;
+                case '1':
+                    e.preventDefault();
+                    this.showView('calendar');
+                    break;
+                case '2':
+                    e.preventDefault();
+                    this.showView('tasks');
+                    break;
+                case '3':
+                    e.preventDefault();
+                    this.showView('today');
+                    break;
+                case '4':
+                    e.preventDefault();
+                    this.showView('upcoming');
+                    break;
             }
         }
     }
 
     handleResize() {
-        // 响应式处理
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-        
-        if (window.innerWidth <= 768) {
-            // 移动端布局调整
-            if (sidebar && mainContent) {
-                mainContent.style.gridTemplateColumns = '1fr';
-            }
-        } else {
-            // 桌面端布局
-            if (sidebar && mainContent) {
-                mainContent.style.gridTemplateColumns = '300px 1fr';
-            }
+        // 处理窗口大小改变
+        if (this.calendar) {
+            this.calendar.handleResize();
         }
     }
 
@@ -317,7 +347,7 @@ class App {
     }
 }
 
-// 初始化应用程序
+// 创建应用实例
 const app = new App();
 
 // 设置全局错误处理
