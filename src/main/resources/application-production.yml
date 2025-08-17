@@ -9,6 +9,13 @@ spring:
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:password}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
   
   # JPA配置
   jpa:
@@ -19,6 +26,8 @@ spring:
       hibernate:
         dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
         format_sql: false
+        connection:
+          provider_disables_autocommit: true
   
   # 安全配置
   security:
@@ -31,6 +40,9 @@ server:
   port: ${PORT:8080}
   servlet:
     context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
   
 # 應用配置
 app:
@@ -46,8 +58,10 @@ app:
 # 日誌配置
 logging:
   level:
-    root: WARN
-    com.taskmanager: INFO
-    org.springframework.security: DEBUG
+    root: INFO
+    com.taskmanager: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
