@@ -4,12 +4,12 @@ services:
     name: calendar-postgres
     plan: free
     
-  # Java 應用 (Docker)
+  # Java 應用 (Java 運行時)
   - type: web
     name: calendar-task-system
     plan: free
-    runtime: docker
     buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/calendar-task-system-1.0.0.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
