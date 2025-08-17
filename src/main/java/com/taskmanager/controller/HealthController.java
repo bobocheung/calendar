@@ -3,25 +3,24 @@ package com.taskmanager.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class HealthController {
     
     @GetMapping("/api/health")
-    public ResponseEntity<Map<String, Object>> health() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "healthy");
-        response.put("message", "Calendar Task System is running");
-        response.put("timestamp", System.currentTimeMillis());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("{\"status\":\"healthy\",\"message\":\"Calendar Task System is running\"}");
     }
     
     @GetMapping("/health")
-    public ResponseEntity<Map<String, Object>> simpleHealth() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "ok");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> simpleHealth() {
+        return ResponseEntity.ok("ok");
+    }
+    
+    @GetMapping("/")
+    public ResponseEntity<String> root() {
+        return ResponseEntity.ok("Calendar Task System is running");
     }
 }

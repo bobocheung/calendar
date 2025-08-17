@@ -167,6 +167,8 @@ public class UserService {
      * 獲取活躍用戶數量
      */
     public long getActiveUserCount() {
-        return userRepository.countByStatus(User.UserStatus.ACTIVE);
+        return userRepository.findAll().stream()
+            .filter(user -> user.getStatus() == User.UserStatus.ACTIVE)
+            .count();
     }
 }

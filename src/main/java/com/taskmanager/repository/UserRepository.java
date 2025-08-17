@@ -40,14 +40,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * 檢查郵箱是否存在
      */
     boolean existsByEmail(String email);
-
-    /**
-     * 根據狀態統計用戶數量
-     */
-    long countByStatus(User.UserStatus status);
-
-    /**
-     * 根據角色查找用戶
-     */
-    Optional<User> findByRole(User.UserRole role);
 }
