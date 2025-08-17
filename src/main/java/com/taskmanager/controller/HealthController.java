@@ -19,6 +19,11 @@ public class HealthController {
         return ResponseEntity.ok("ok");
     }
     
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("pong");
+    }
+    
     @GetMapping("/")
     public ResponseEntity<String> root() {
         return ResponseEntity.ok("Calendar Task System is running");

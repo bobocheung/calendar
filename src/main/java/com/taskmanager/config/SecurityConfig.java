@@ -17,7 +17,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .anyRequest().permitAll()
             )
-            .httpBasic(httpBasic -> httpBasic.disable());
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .formLogin(form -> form.disable())
+            .logout(logout -> logout.disable())
+            .headers(headers -> headers.frameOptions().disable());
         
         return http.build();
     }

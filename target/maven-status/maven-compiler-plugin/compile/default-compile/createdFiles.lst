@@ -1,2 +1,3 @@
-com/taskmanager/controller/TestController.class
+com/taskmanager/config/SecurityConfig.class
+com/taskmanager/controller/HealthController.class
 com/taskmanager/CalendarTaskSystemApplication.class

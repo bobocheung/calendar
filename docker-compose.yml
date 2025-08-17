@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 數據庫
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: calendar_db
+      POSTGRES_USER: calendar_user
+      POSTGRES_PASSWORD: calendar_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Java 應用
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - PORT=8080
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/calendar_db
+      - DB_USERNAME=calendar_user
+      - DB_PASSWORD=calendar_password
+      - DB_DRIVER=org.postgresql.Driver
+      - HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - JWT_SECRET=your-secret-key-here
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
