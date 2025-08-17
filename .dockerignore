@@ -2,10 +2,6 @@
 .git
 .gitignore
 
-# Maven
-target/
-!target/calendar-task-system-1.0.0.jar
-
 # IDE
 .idea/
 .vscode/
@@ -25,11 +21,6 @@ Thumbs.db
 # Documentation
 README*.md
 *.md
-
-# Docker
-Dockerfile*
-docker-compose*
-.dockerignore
 
 # Backup
 temp_backup/
