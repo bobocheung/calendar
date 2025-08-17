@@ -1,10 +1,22 @@
-# 使用 OpenJDK 17 作為基礎鏡像
+# 多階段構建 - 構建階段
+FROM maven:3.9.5-jdk-17 AS build
+
+WORKDIR /app
+
+# 複製 pom.xml 和源代碼
+COPY pom.xml .
+COPY src ./src
+
+# 構建應用
+RUN mvn clean package -DskipTests
+
+# 運行階段
 FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 
-# 複製 JAR 文件
-COPY target/calendar-task-system-1.0.0.jar app.jar
+# 從構建階段複製 JAR 文件
+COPY --from=build /app/target/calendar-task-system-1.0.0.jar app.jar
 
 # 暴露端口
 EXPOSE 8080

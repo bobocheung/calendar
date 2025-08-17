@@ -21,9 +21,9 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=production
       - PORT=8080
-      - DATABASE_URL=jdbc:postgresql://postgres:5432/calendar_db
+      - DATABASE_URL=postgresql://calendar_user:CppAMtPwlFc25e76WKxWMp0NzVP226FI@dpg-d2gt6675r7bs73fevvi0-a.oregon-postgres.render.com/calendar_db_uv37
       - DB_USERNAME=calendar_user
-      - DB_PASSWORD=calendar_password
+      - DB_PASSWORD=CppAMtPwlFc25e76WKxWMp0NzVP226FI
       - DB_DRIVER=org.postgresql.Driver
       - HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - JWT_SECRET=your-secret-key-here
