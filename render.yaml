@@ -1,0 +1,31 @@
+services:
+  # PostgreSQL 數據庫
+  - type: pserv
+    name: calendar-postgres
+    plan: free
+    region: oregon
+    
+  # Java 應用
+  - type: web
+    name: calendar-task-system
+    plan: free
+    region: oregon
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/calendar-task-system-1.0.0.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: PORT
+        value: 8080
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: HIBERNATE_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+    healthCheckPath: /ping
+    autoDeploy: true
